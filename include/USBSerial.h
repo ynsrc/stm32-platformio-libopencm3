@@ -1,4 +1,4 @@
-#ifndef __USBCDC_H__
+#ifndef __USBSERIAL_H__
 
 #include <stdlib.h>
 #include <libopencm3/usb/usbd.h>
@@ -6,6 +6,7 @@
 
 usbd_device *usbd_dev;
 static char usb_serial[13];	// 12 digits plus a null terminator
+static char command = '\0';
 
 static const struct usb_device_descriptor dev = {
     .bLength = USB_DT_DEVICE_SIZE,
@@ -143,7 +144,7 @@ static const struct usb_config_descriptor config = {
 
 static const char *usb_strings[] = {
     "YNSRC Open Source",
-    "CDC-ACM Example",
+    "Blue Pill",
     usb_serial,
 };
 
@@ -184,6 +185,7 @@ static enum usbd_request_return_codes cdcacm_control_request(usbd_device *usbd_d
         // usbd_ep_write_packet(0x83, buf, 10);
         return USBD_REQ_HANDLED;
     }
+
     case USB_CDC_REQ_SET_LINE_CODING:
         if (*len < sizeof(struct usb_cdc_line_coding))
         {
@@ -203,6 +205,7 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 
     if (len)
     {
+        command = buf[0];
         usbd_ep_write_packet(usbd_dev, 0x82, buf, len);
     }
 }
@@ -247,8 +250,15 @@ static void fill_usb_serial(void) {
 	*ser_str = '\0';
 }
 
-static void USBSerial_init()
+static void usbserial_pool() {
+    usbd_poll(usbd_dev);
+}
+
+static void usbserial_init()
 {
+	rcc_periph_clock_enable(RCC_AFIO);
+	AFIO_MAPR |= AFIO_MAPR_SWJ_CFG_JTAG_OFF_SW_ON;
+
     fill_usb_serial();
 
     usbd_dev = usbd_init(&st_usbfs_v1_usb_driver,
@@ -262,8 +272,4 @@ static void USBSerial_init()
     usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
 }
 
-static void USBSerial_pool() {
-    usbd_poll(usbd_dev);
-}
-
-#endif // __USBCDC_H__
+#endif // __USBSERIAL_H__
