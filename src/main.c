@@ -14,16 +14,44 @@ static void usbTask(void* args) {
 		if (command != '\0') {
 			switch (command) {
 				case '0':
-					gpio_set(GPIOC, GPIO13); // turn led off
+					usbserial_writeline("turning led off");
+					usbserial_writeline("write '1' to turn led on");
+					gpio_set(GPIOC, GPIO13);
 					break;
 
 				case '1':
-					gpio_clear(GPIOC, GPIO13); // turn led on
+					usbserial_writeline("turning led on");
+					usbserial_writeline("write '0' to turn led off");
+					gpio_clear(GPIOC, GPIO13);
 				break;
 
 				case 't':
-					gpio_toggle(GPIOC, GPIO13); // toggle led
+					usbserial_writeline("toggling led state");
+					gpio_toggle(GPIOC, GPIO13);
 				break;
+
+				case 'g':
+					if (1) {
+						int port_a_status = gpio_get(GPIOA, 0xFF);
+						int port_b_status = gpio_get(GPIOB, 0xFF);
+						int port_c_status = gpio_get(GPIOC, GPIO13);
+						usbserial_writeline("GPIO PORT STATUSES");
+						usbserial_write("A: ");
+						usbserial_write_int(port_a_status, 2);
+						usbserial_writeline("");
+						usbserial_write("B: ");
+						usbserial_write_int(port_b_status, 2);
+						usbserial_writeline("");
+						usbserial_write("C: ");
+						usbserial_write_int(port_c_status, 2);
+						usbserial_writeline("");
+					}
+					break;
+
+				default:
+					
+					usbserial_writeline("unknown command");
+					break;
 			}
 
 			command = '\0';

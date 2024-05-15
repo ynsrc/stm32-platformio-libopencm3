@@ -17,13 +17,13 @@ This is an example STM32 Blue Pill (STM32F103C8T6) project for learning and trai
 
 At the bottom of VS Code click "✓" to build, "➔" to upload.
 
-
 # Attributions
 * [PlatformIO](https://github.com/platformio)
 * [FreeRTOS](https://github.com/freertos)
 * [libopencm3/libopencm3-examples](https://github.com/libopencm3/libopencm3-examples)
 * [bjwschaap/platformio-libopencm3-freertos](https://github.com/bjwschaap/platformio-libopencm3-freertos)
 * [dhylands/libopencm3-usb-serial](https://github.com/dhylands/libopencm3-usb-serial)
+* [ve3wwg/stm32f103c8t6](https://github.com/ve3wwg/stm32f103c8t6)
 
 # License
 The Unlicense. Feel free to use or change it how you need.

@@ -1,12 +1,16 @@
 #ifndef __USBSERIAL_H__
 
 #include <stdlib.h>
+#include <memory.h>
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 
 usbd_device *usbd_dev;
 static char usb_serial[13];	// 12 digits plus a null terminator
 static char command = '\0';
+
+static char tx_buffer[256];
+static int tx_remaining_bytes = 0;
 
 static const struct usb_device_descriptor dev = {
     .bLength = USB_DT_DEVICE_SIZE,
@@ -206,7 +210,9 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
     if (len)
     {
         command = buf[0];
-        usbd_ep_write_packet(usbd_dev, 0x82, buf, len);
+        buf[len] = '\r';
+        buf[len + 1] = '\n';
+        usbd_ep_write_packet(usbd_dev, 0x82, buf, len + 2);
     }
 }
 
@@ -252,6 +258,14 @@ static void fill_usb_serial(void) {
 
 static void usbserial_pool() {
     usbd_poll(usbd_dev);
+
+    if (tx_remaining_bytes > 0) {
+        int sent_bytes = 0;
+        while (tx_remaining_bytes > 0) {
+            sent_bytes = usbd_ep_write_packet(usbd_dev, 0x82, tx_buffer, tx_remaining_bytes);
+            tx_remaining_bytes -= sent_bytes;
+        }
+    }
 }
 
 static void usbserial_init()
@@ -270,6 +284,25 @@ static void usbserial_init()
                          sizeof(usbd_control_buffer));
     
     usbd_register_set_config_callback(usbd_dev, cdcacm_set_config);
+}
+
+static void usbserial_write(const char* str) {
+    int len = strlen(str);
+    if (len > 0) {
+        memcpy(tx_buffer + tx_remaining_bytes, str, len);
+        tx_remaining_bytes += len;
+    }
+}
+
+static void usbserial_writeline(const char* str) {
+    usbserial_write(str);
+    usbserial_write("\r\n");
+}
+
+static void usbserial_write_int(int i, int base) {
+    char buff[16];
+    __itoa(i, buff, base);
+    usbserial_write(buff);
 }
 
 #endif // __USBSERIAL_H__
