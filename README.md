@@ -19,10 +19,11 @@ At the bottom of VS Code click "✓" to build, "➔" to upload.
 
 
 # Attributions
-1. https://github.com/platformio
-2. https://github.com/freertos 
-3. https://github.com/bjwschaap/platformio-libopencm3-freertos
-
+* [PlatformIO](https://github.com/platformio)
+* [FreeRTOS](https://github.com/freertos)
+* [libopencm3/libopencm3-examples](https://github.com/libopencm3/libopencm3-examples)
+* [bjwschaap/platformio-libopencm3-freertos](https://github.com/bjwschaap/platformio-libopencm3-freertos)
+* [dhylands/libopencm3-usb-serial](https://github.com/dhylands/libopencm3-usb-serial)
 
 # License
 The Unlicense. Feel free to use or change it how you need.
